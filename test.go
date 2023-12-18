@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -23,6 +24,7 @@ func romanToArabic(roman string) int {
 		lastValue = value
 	}
 	return arabic
+
 }
 
 func arabicToRoman(arabic int) string {
@@ -56,9 +58,12 @@ func calculate(num1, num2 int, operator string) int {
 	case "/":
 		return num1 / num2
 	default:
-		fmt.Println("Invalid operator")
+		err := errors.New("Не корректный оператор")
+		fmt.Println("Ошибка:", err)
 		return 0
+
 	}
+
 }
 
 func main() {
@@ -69,6 +74,12 @@ func main() {
 	scanner.Scan()
 	input := scanner.Text()
 	parts := strings.Fields(input)
+	if len(parts) != 3 {
+		err := errors.New("Не корректное значение")
+		fmt.Println("Ошибка:", err)
+		return
+	}
+
 	firstElement = parts[0]
 	operator = parts[1]
 	secondElement = parts[2]
@@ -90,8 +101,32 @@ func main() {
 		fmt.Println("Оба значения должны быть в одинаковом формате")
 		return
 	}
-	result := calculate(num1, num2, operator)
 
-	fmt.Printf("Result (Arabic): %d\n", result)
-	fmt.Printf("Result (Roman): %s\n", arabicToRoman(result))
+	_, err := checkNumbers(num1, num2)
+	if err != nil {
+		fmt.Println("Ошибка:", err)
+		return
+	}
+
+	result := calculate(num1, num2, operator)
+	if flag1 == true && flag2 == true {
+		if result < 0 {
+			err := errors.New("Римское число не может быть отрицательным")
+			fmt.Println("Ошибка:", err)
+			return
+		}
+		fmt.Printf("Result (Roman): %s\n", arabicToRoman(result))
+
+	} else {
+		fmt.Printf("Result (Arabic): %d\n", result)
+
+	}
+
+}
+
+func checkNumbers(num1, num2 int) (bool, error) {
+	if num1 < 0 || num1 > 10 && num2 < 0 || num2 > 10 {
+		return false, errors.New("число вне диапазона 1-10")
+	}
+	return true, nil
 }
